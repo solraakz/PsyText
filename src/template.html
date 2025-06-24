@@ -1,0 +1,107 @@
+<meta charset="UTF-8"> 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PsyText Analysis Output</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #ecf0f1;
+        }
+        .content-text p {
+            text-align: justify;
+        }
+        .legend {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class='content-text'>
+        <h2>Analysis</h2>
+        <div class='legend'>
+            <strong>Color Information (per sentiment):</strong><br>
+            <span style="color:darkgreen">Very Positive (&ge;0.5)</span>,
+            <span style="color:green">Positive (&ge;0.2)</span>,
+            <span style="color:lightgreen">Mildly Posiive (&ge;0.1)</span>,<br>
+            <span style="color:darkred">Very Negative (&le;-0.5)</span>,
+            <span style="color:red">Negative (&le;-0.2)</span>,
+            <span style="color:lightcoral">Mildly Negative (&le;-0.1)</span>,<br>
+            <span style="color:orange">Neutral</span><br><br>
+        </div>
+        <p>
+            {% for info in frases_info %}
+                <span style="color:{{ info.cor }}">{{ info.frase }}.</span> 
+            {% endfor %}
+        </p>
+    </div>
+
+    {% if estatisticas_gerais %}
+    <h2>General Stats</h2>
+    <table>
+        <thead><tr><th colspan='2'>Detalhes</th></tr></thead>
+        <tbody>
+            <tr><td>{{ st.stats_num_sentences }}</td><td>{{ estatisticas_gerais.num_frases }}</td></tr>
+            <tr><td>{{ st.stats_avg_valence }}</td><td>{{ "%.2f"|format(estatisticas_gerais.media_valencia) }}</td></tr>
+            <tr><td>{{ st.stats_avg_arousal }}</td><td>{{ "%.2f"|format(estatisticas_gerais.media_arousal) }}</td></tr>
+            <tr><td>{{ st.stats_perc_positive }}</td><td>{{ "%.2f"|format(estatisticas_gerais.perc_positivas) }}% ({{ estatisticas_gerais.cont_positivas }})</td></tr>
+            <tr><td>{{ st.stats_perc_negative }}</td><td>{{ "%.2f"|format(estatisticas_gerais.perc_negativas) }}% ({{ estatisticas_gerais.cont_negativas }})</td></tr>
+            <tr><td>{{ st.stats_perc_neutral }}</td><td>{{ "%.2f"|format(estatisticas_gerais.perc_neutras) }}% ({{ estatisticas_gerais.cont_neutras }})</td></tr>
+            <tr><td>{{ st.stats_total_words }}</td><td>{{ estatisticas_gerais.get('total_palavras', 'N/A') }}</td></tr>
+            <tr><td>{{ st.stats_avg_words_sentence }}</td><td>{{ "%.2f"|format(estatisticas_gerais.get('avg_palavras_frase', 0.0)) }}</td></tr>
+            <tr><td>{{ st.stats_ttr }}</td><td>{{ "%.3f"|format(estatisticas_gerais.get('ttr', 0.0)) }}</td></tr>
+            <tr><td>{{ st.stats_flesch_ease }}</td><td>{{ estatisticas_gerais.get('flesch_reading_ease', 'N/A') }}</td></tr>
+            
+            {% if 'emotion_counts' in estatisticas_gerais %}
+                <tr><td colspan='2'><strong>{{ st.get('stats_emotion_counts_title', 'Emotion Word Counts:') }}</strong></td></tr>
+                {% for emotion, count in estatisticas_gerais.emotion_counts.items() %}
+                    <tr><td>{{ emotion.replace("_", " ").capitalize() }}:</td><td>{{ count }}</td></tr>
+                {% endfor %}
+            {% endif %}
+            {% if 'pronoun_counts' in estatisticas_gerais %}
+                <tr><td colspan='2'><strong>{{ st.get('stats_pronoun_counts_title', 'Pronoun Counts:') }}</strong></td></tr>
+                {% for category, count in estatisticas_gerais.pronoun_counts.items() %}
+                    <tr><td>{{ category.replace("_", " ").capitalize() }}:</td><td>{{ count }}</td></tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+</body>
+</html>
